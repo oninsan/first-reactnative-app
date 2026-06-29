@@ -1,0 +1,40 @@
+---
+description: Guidelines for continuously improving Cursor rules based on emerging patterns in this React Native app.
+globs: "**/*"
+alwaysApply: true
+---
+
+## Rule self-improvement (how to keep rules useful)
+
+Update/add rules when you see **repeatable patterns** that matter for correctness, security, or velocity.
+
+### Triggers (when to change rules)
+
+- **Pattern repeats** in **3+** places (fetch wrappers, auth header handling, navigation
+  param shapes, list-rendering patterns).
+- **Recurring bug class** (tokens in AsyncStorage, secrets in the bundle, UI calling
+  services directly, missing loading/error states).
+- **New convention/library** becomes "the way we do it" (styling system, state management,
+  navigation patterns, secure storage helper).
+- **Structure drift** (folders added/renamed; layering rules no longer match reality).
+
+### What to check (fast review loop)
+
+- **Structure/layers**: [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc)
+- **Dependencies/UI stack**: [tech-stack.mdc](mdc:.cursor/rules/tech-stack.mdc)
+- **Docs alignment**: if `docs/**` describes a contract, rules/examples should match.
+- **Error/loading handling**: consistent patterns for async screens (loading, error, empty).
+
+### Rule quality bar
+
+- **Actionable**: "do X in folder Y; don't do Z".
+- **Minimal**: keep only what prevents common mistakes.
+- **Concrete**: use real paths/symbol names; avoid long tables.
+
+### Canonical example (keep components thin)
+
+```tsx
+// src/screens/ProfileScreen.tsx
+// useProfile() owns fetch + state; the screen just renders.
+const { profile, loading, error } = useProfile(userId)
+```

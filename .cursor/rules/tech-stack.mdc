@@ -1,0 +1,52 @@
+---
+description: React Native app tech stack, pinned/resolved dependency versions, and version-aware best practices.
+globs: "**/*"
+alwaysApply: true
+---
+
+# Tech stack (token-lean)
+
+## Source of truth
+
+- **Versions**: `package.json` (ranges) + lockfile (`package-lock.json` / `yarn.lock` / `bun.lock`) for resolved.
+- Prefer **repo scripts** for dev/build/lint (don't invent custom commands). Check
+  `package.json` `scripts` and `app.json` / `app.config.*` before assuming the toolchain.
+
+## Non-negotiables (things that commonly break)
+
+- **Node**: match the version in `.nvmrc` / `package.json` `engines` if present; otherwise a current LTS.
+- **Expo vs bare**: detect from `app.json`/`expo` dependency. If Expo, prefer `npx expo`
+  commands and Expo-compatible packages (`expo install` for native deps). If bare RN,
+  respect the iOS `Podfile` / Android Gradle setup.
+- **Native deps**: adding a native module may require a rebuild / `pod install` / prebuild.
+  Don't add native deps without noting the rebuild step.
+
+## UI + styling conventions
+
+- Prefer existing component primitives and the project's styling approach (StyleSheet,
+  NativeWind/Tailwind, styled-components — follow what's already used; don't introduce a
+  second styling system).
+- Reuse existing theme tokens/colors over new magic values.
+
+## Data + platform conventions
+
+- Network through a single API client in `src/services/**` (see layering in
+  [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc)).
+- **Secure storage** (tokens/PII) via `expo-secure-store` / Keychain / Keystore — never
+  plain `AsyncStorage` or files.
+- **No secrets in the bundle**: API keys / signing secrets stay server-side.
+
+## Testing
+
+- **Runner**: Jest (`npm test`) with React Native Testing Library for components.
+- **Layout**: all tests under `__tests__/`; see Tests section in [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc).
+
+## Linting / types
+
+- Run `npm run lint` and `npx tsc --noEmit` before merging changes.
+- Keep TypeScript strict-friendly; avoid `any`.
+
+## Upgrades (minimal checklist)
+
+- Update deps → install → verify lockfile → (`expo install --check` if Expo) → `npm run lint`
+  → `npx tsc --noEmit` → `npm test` → smoke-test on iOS + Android.
